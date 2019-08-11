@@ -39,7 +39,7 @@ int ModbusTCPClient::begin(IPAddress ip, uint16_t port)
 {
   modbus_t* mb = modbus_new_tcp(_client, ip, port);
 
-  modbus_set_response_timeout(mb, 30, 0);
+  modbus_set_response_timeout(mb, 1, 0);
 
   return ModbusClient::begin(mb, MODBUS_TCP_SLAVE);
 }

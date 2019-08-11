@@ -28,10 +28,9 @@
 # define SHUT_RDWR 2
 # define close closesocket
 #elif defined(ARDUINO)
-#ifndef DEBUG
-#define printf(...) {}
-#define fprintf(...) {}
-#endif
+#include <Arduino.h>
+#include <esp_log.h>
+static const char* LOG_TAG = "libmodbus";
 #else
 # include <sys/socket.h>
 # include <sys/ioctl.h>
@@ -240,7 +239,7 @@ static int _modbus_tcp_pre_check_confirmation(modbus_t *ctx, const uint8_t *req,
     /* Check transaction ID */
     if (req[0] != rsp[0] || req[1] != rsp[1]) {
         if (ctx->debug) {
-            fprintf(stderr, "Invalid transaction ID received 0x%X (not 0x%X)\n",
+            ESP_LOGE(LOG_TAG, "Invalid transaction ID received 0x%X (not 0x%X)",
                     (rsp[0] << 8) + rsp[1], (req[0] << 8) + req[1]);
         }
         errno = EMBBADDATA;
@@ -250,7 +249,7 @@ static int _modbus_tcp_pre_check_confirmation(modbus_t *ctx, const uint8_t *req,
     /* Check protocol ID */
     if (rsp[2] != 0x0 && rsp[3] != 0x0) {
         if (ctx->debug) {
-            fprintf(stderr, "Invalid protocol ID received 0x%X (not 0x0)\n",
+            ESP_LOGE(LOG_TAG, "Invalid protocol ID received 0x%X (not 0x0)",
                     (rsp[2] << 8) + rsp[3]);
         }
         errno = EMBBADDATA;
@@ -780,7 +779,7 @@ int modbus_tcp_accept(modbus_t *ctx, int *s)
     }
 
     if (ctx->debug) {
-        printf("The client connection from %s is accepted\n",
+        ESP_LOGD(LOG_TAG, "The client connection from %s is accepted",
                inet_ntoa(addr.sin_addr));
     }
 
@@ -836,6 +835,8 @@ static int _modbus_tcp_select(modbus_t *ctx, fd_set *rset, struct timeval *tv, i
         if (s_rc >= length_to_read) {
             break;
         }
+
+        delay(50);
     } while ((millis() - start) < wait_time_millis && ctx_tcp->client->connected());
 #else
     while ((s_rc = select(ctx->s+1, rset, NULL, NULL, tv)) == -1) {
@@ -957,14 +958,14 @@ modbus_t* modbus_new_tcp(const char *ip, int port)
         dest_size = sizeof(char) * 16;
         ret_size = strlcpy(ctx_tcp->ip, ip, dest_size);
         if (ret_size == 0) {
-            fprintf(stderr, "The IP string is empty\n");
+            ESP_LOGE(LOG_TAG, "The IP string is empty");
             modbus_free(ctx);
             errno = EINVAL;
             return NULL;
         }
 
         if (ret_size >= dest_size) {
-            fprintf(stderr, "The IP string has been truncated\n");
+            ESP_LOGE(LOG_TAG, "The IP string has been truncated");
             modbus_free(ctx);
             errno = EINVAL;
             return NULL;
@@ -1006,14 +1007,14 @@ modbus_t* modbus_new_tcp_pi(const char *node, const char *service)
         dest_size = sizeof(char) * _MODBUS_TCP_PI_NODE_LENGTH;
         ret_size = strlcpy(ctx_tcp_pi->node, node, dest_size);
         if (ret_size == 0) {
-            fprintf(stderr, "The node string is empty\n");
+            ESP_LOGE(LOG_TAG, "The node string is empty");
             modbus_free(ctx);
             errno = EINVAL;
             return NULL;
         }
 
         if (ret_size >= dest_size) {
-            fprintf(stderr, "The node string has been truncated\n");
+            ESP_LOGE(LOG_TAG, "The node string has been truncated");
             modbus_free(ctx);
             errno = EINVAL;
             return NULL;
@@ -1029,14 +1030,14 @@ modbus_t* modbus_new_tcp_pi(const char *node, const char *service)
     }
 
     if (ret_size == 0) {
-        fprintf(stderr, "The service string is empty\n");
+        ESP_LOGE(LOG_TAG, "The service string is empty");
         modbus_free(ctx);
         errno = EINVAL;
         return NULL;
     }
 
     if (ret_size >= dest_size) {
-        fprintf(stderr, "The service string has been truncated\n");
+        ESP_LOGE(LOG_TAG, "The service string has been truncated");
         modbus_free(ctx);
         errno = EINVAL;
         return NULL;

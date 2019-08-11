@@ -34,6 +34,9 @@ extern "C" {
 class ModbusClient {
 
 public:
+  ModbusClient();
+  virtual ~ModbusClient();
+
   /**
    * Perform a "Read Coils" operation for the specified address for a single
    * coil.
@@ -199,9 +202,6 @@ public:
   void end();
 
 protected:
-  ModbusClient();
-  virtual ~ModbusClient();
-
   int begin(modbus_t* _mb, int defaultId);
 
 private:
