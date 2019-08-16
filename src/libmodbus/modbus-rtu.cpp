@@ -1269,6 +1269,8 @@ static int _modbus_rtu_select(modbus_t *ctx, fd_set *rset,
         if (s_rc >= length_to_read) {
             break;
         }
+
+        delay(50);
     } while ((millis() - start) < wait_time_millis);
 
     if (s_rc == 0) {
