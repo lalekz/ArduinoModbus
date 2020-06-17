@@ -276,6 +276,22 @@ int ModbusServer::inputRegisterWrite(int address, uint16_t value)
   return 1;
 }
 
+int ModbusServer::writeInputRegisters(int address, uint16_t values[], int nb)
+{
+  if (_mbMapping.start_input_registers > address || 
+      (_mbMapping.start_input_registers + _mbMapping.nb_input_registers) < (address + nb)) {
+    errno = EMBXILADD;
+
+    return 0;
+  }
+
+  for (int i = 0; i < nb; ++i) {
+    _mbMapping.tab_input_registers[address+i - _mbMapping.start_input_registers] = values[i];
+  }
+
+  return nb; 
+}
+
 int ModbusServer::begin(modbus_t* mb, int id)
 {
   end();
