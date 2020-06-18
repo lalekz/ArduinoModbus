@@ -21,6 +21,7 @@
 #define _MODBUS_RTU_SERVER_H_INCLUDED
 
 #include "ModbusServer.h"
+#include "ArduinoRS485.h"
 
 class ModbusRTUServerClass : public ModbusServer {
 public:
@@ -36,14 +37,12 @@ public:
    *
    * Return 1 on success, 0 on failure
    */
-  int begin(int id, unsigned long baudrate, uint16_t config = SERIAL_8N1);
+  int begin(int id, RS485Class* rs485, unsigned long baudrate, uint32_t config = SERIAL_8N1);
 
   /**
    * Poll interface for requests
    */
   virtual void poll();
 };
-
-extern ModbusRTUServerClass ModbusRTUServer;
 
 #endif

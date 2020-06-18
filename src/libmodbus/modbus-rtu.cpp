@@ -17,6 +17,8 @@
 
 #ifdef ARDUINO
 #include <ArduinoRS485.h>
+#include <esp_log.h>
+static const char* LOG_TAG = "libmodbus";
 
 #ifndef DEBUG
 #define printf(...) {}
@@ -439,7 +441,7 @@ static int _modbus_rtu_check_integrity(modbus_t *ctx, uint8_t *msg,
      * CRC computing. */
     if (slave != ctx->slave && slave != MODBUS_BROADCAST_ADDRESS) {
         if (ctx->debug) {
-            printf("Request for slave %d ignored (not %d)\n", slave, ctx->slave);
+            ESP_LOGD(LOG_TAG, "Request for slave %d ignored (not %d)\n", slave, ctx->slave);
         }
         /* Following call to check_confirmation handles this error */
         return 0;
@@ -453,7 +455,7 @@ static int _modbus_rtu_check_integrity(modbus_t *ctx, uint8_t *msg,
         return msg_length;
     } else {
         if (ctx->debug) {
-            fprintf(stderr, "ERROR CRC received 0x%0X != CRC calculated 0x%0X\n",
+            ESP_LOGE(LOG_TAG, "ERROR CRC received 0x%0X != CRC calculated 0x%0X\n",
                     crc_received, crc_calculated);
         }
 
