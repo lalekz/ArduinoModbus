@@ -42,7 +42,7 @@ public:
   /**
    * Poll interface for requests
    */
-  virtual void poll();
+  virtual int poll();
 };
 
 #endif

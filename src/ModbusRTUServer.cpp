@@ -47,7 +47,7 @@ int ModbusRTUServerClass::begin(int id, RS485Class* rs485, unsigned long baudrat
   return 1;
 }
 
-void ModbusRTUServerClass::poll()
+int ModbusRTUServerClass::poll()
 {
   uint8_t request[MODBUS_RTU_MAX_ADU_LENGTH];
 
@@ -55,6 +55,8 @@ void ModbusRTUServerClass::poll()
 
   if (requestLength > 0) {
     modbus_reply(_mb, request, requestLength, &_mbMapping);
+    return 1;
   }
+  return 0;
 }
 
