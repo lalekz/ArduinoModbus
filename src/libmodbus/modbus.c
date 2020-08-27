@@ -404,7 +404,7 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type)
 
     if (ctx->debug) {
         if (msg_type == MSG_INDICATION) {
-            ESP_LOGD(LOG_TAG, "Waiting for a indication...");
+            //ESP_LOGD(LOG_TAG, "Waiting for a indication...");
         } else {
             ESP_LOGD(LOG_TAG, "Waiting for a confirmation...");
         }
@@ -435,7 +435,7 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type)
     while (length_to_read != 0) {
         rc = ctx->backend->select(ctx, &rset, p_tv, length_to_read);
         if (rc == -1) {
-            _error_print(ctx, "select");
+            //_error_print(ctx, "select");
             if (ctx->error_recovery & MODBUS_ERROR_RECOVERY_LINK) {
                 int saved_errno = errno;
 
@@ -528,6 +528,8 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type)
 
     //if (ctx->debug)
     //    printf("\n");
+
+    ESP_LOGD(LOG_TAG, "Modbus frame received, size=%d bytes", msg_length);
 
     return ctx->backend->check_integrity(ctx, msg, msg_length);
 }

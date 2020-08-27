@@ -25,6 +25,7 @@ extern "C" {
 }
 
 #include "ModbusRTUServer.h"
+static const char* LOG_TAG = "libmodbus";
 
 ModbusRTUServerClass::ModbusRTUServerClass()
 {
@@ -37,6 +38,7 @@ ModbusRTUServerClass::~ModbusRTUServerClass()
 int ModbusRTUServerClass::begin(int id, RS485Class* rs485, unsigned long baudrate, uint32_t config)
 {
   modbus_t* mb = modbus_new_rtu(rs485, baudrate, config);
+  modbus_set_debug(mb, FALSE);
 
   if (!ModbusServer::begin(mb, id)) {
     return 0;
@@ -54,6 +56,7 @@ int ModbusRTUServerClass::poll()
   int requestLength = modbus_receive(_mb, request);
 
   if (requestLength > 0) {
+    ESP_LOGD(LOG_TAG, "Got modbus request, addr=%d, func=%d", request[0], request[1]);
     modbus_reply(_mb, request, requestLength, &_mbMapping);
     return 1;
   }
