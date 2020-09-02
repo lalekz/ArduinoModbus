@@ -58,6 +58,11 @@ int ModbusServer::configureCoils(int startAddress, int nb)
     return -1;
   }
 
+  if (_mbMapping.start_bits == startAddress &&
+      _mbMapping.nb_bits == nb) {
+    return 1;
+  }
+
   size_t s = sizeof(_mbMapping.tab_bits[0]) * nb;
 
   _mbMapping.tab_bits = (uint8_t*)realloc(_mbMapping.tab_bits, s);
@@ -82,6 +87,11 @@ int ModbusServer::configureDiscreteInputs(int startAddress, int nb)
     errno = EINVAL;
 
     return -1;
+  }
+
+  if (_mbMapping.start_input_bits == startAddress &&
+      _mbMapping.nb_input_bits == nb) {
+    return 1;
   }
 
   size_t s = sizeof(_mbMapping.tab_input_bits[0]) * nb;
@@ -110,6 +120,11 @@ int ModbusServer::configureHoldingRegisters(int startAddress, int nb)
     return -1;
   }
 
+  if (_mbMapping.start_registers == startAddress &&
+      _mbMapping.nb_registers == nb) {
+    return 1;
+  }
+
   size_t s = sizeof(_mbMapping.tab_registers[0]) * nb;
 
   _mbMapping.tab_registers = (uint16_t*)realloc(_mbMapping.tab_registers, s);
@@ -134,6 +149,11 @@ int ModbusServer::configureInputRegisters(int startAddress, int nb)
     errno = EINVAL;
 
     return -1;
+  }
+
+  if (_mbMapping.start_input_registers == startAddress &&
+      _mbMapping.nb_input_registers == nb) {
+    return 1;
   }
 
   size_t s = sizeof(_mbMapping.tab_input_registers[0]) * nb;
